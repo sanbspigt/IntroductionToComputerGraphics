@@ -18,6 +18,19 @@ unsigned int shaderID;
 
 unsigned int texture1,texture2;
 
+glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 void InitCubeVerts(float x, float y, float length)
 {	
 	//X,Y,Z - R,G,B - U,V
@@ -64,6 +77,8 @@ void InitCubeVerts(float x, float y, float length)
 	   -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 	   -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+
+	
 		
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -105,7 +120,7 @@ void InitCubeVerts(float x, float y, float length)
 
 		stbi_set_flip_vertically_on_load(true);
 
-		data = stbi_load("Nezuko.jpg", &width, &height, &clrChannels, STBI_rgb_alpha);
+		data = stbi_load("Demon.jpg", &width, &height, &clrChannels, STBI_rgb_alpha);
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -131,7 +146,7 @@ void InitCubeVerts(float x, float y, float length)
 		
 		stbi_set_flip_vertically_on_load(true);
 
-		data = stbi_load("tex2.png", &width, &height, &clrChannels, STBI_rgb_alpha);
+		data = stbi_load("Nezuko.png", &width, &height, &clrChannels, STBI_rgb_alpha);
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -159,32 +174,35 @@ void RenderCube(const char* vertex, const char* fragment)
 	Shader myShader(vertex, fragment);
 	shaderID = myShader.ID;
 
-	myShader.use();
-	myShader.setInt("texture1",0);
-	myShader.setInt("texture2",1);
+	for (unsigned int i = 0; i < 10; i++) {
+		myShader.use();
+		myShader.setInt("texture1", 0);
+		myShader.setInt("texture2", 1);
 
-	// create transformations
-	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-	projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
-	
-	myShader.setMat4("model",model);
-	myShader.setMat4("view",view);	
-	myShader.setMat4("projection", projection);
+		// create transformations
+		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		model = glm::translate(model, cubePositions[i]);
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D,texture1);
-	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
+		myShader.setMat4("model", model);
+		myShader.setMat4("view", view);
+		myShader.setMat4("projection", projection);
 
-	
-	
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES,0,36);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+
+
+
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 }
